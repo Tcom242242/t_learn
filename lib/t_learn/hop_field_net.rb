@@ -7,7 +7,7 @@ module TLearn
 
     def initialize(threshold=nil, data)
       if threshold == nil
-        @threshold = 0.8
+        @threshold = 0.0
       else
         @threshold = threshold
       end
@@ -99,7 +99,7 @@ module TLearn
   # @param data Array data which we want to add noise
   # @param noise_rate float rate of noise
   #
-  def add_noise_data(data,noise_rate)
+  def TLearn.add_noise_data(data,noise_rate)
     data_with_noise = Marshal.load(Marshal.dump(data))
     data.size.times do |n|
       if rand <= noise_rate
@@ -117,7 +117,7 @@ module TLearn
   #
   # === evaluate predict data with teatcher data
   #
-  def evaluate(teacher_data,data)
+  def TLearn.evaluate(teacher_data,data)
     dominator = 0.0
     molecule = 0.0 
     teacher_data.zip(data).each do |td,d|

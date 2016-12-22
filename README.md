@@ -20,7 +20,20 @@ Or install it yourself as:
     $ gem install t_learn
 
 ## Usage
+### hop filed net
 
+``` ruby
+data = [1.0, 1.0, -1.0, -1.0, 1.0]  # teacher data
+hop_field_net = TLearn::HopFieldNet.new(0.0, data)
+hop_field_net.memorize
+noisedData = TLearn.add_noise_data(data, 0.0) # make test data
+puts "======[before]======"
+puts "#{TLearn.evaluate(data, noisedData)}%"
+hop_field_net.remember(noisedData)
+puts "======[after]======"
+puts "#{ TLearn.evaluate(data,hop_field_net.nodes) }%" 
+
+```
 
 ## Development
 
