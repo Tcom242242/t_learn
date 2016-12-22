@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{my machine learning lib}
   spec.description   = %q{my machine learning lib}
-  spec.homepage      = "http://www.tcom242242.site/"
+  spec.homepage      = "https://github.com/Tcom242242/t_learn"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
