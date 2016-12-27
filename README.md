@@ -1,6 +1,5 @@
 # TLearn
-
-my machine learning library.
+This is my hobby machine learning library.
 I will add machine learning items.
 
 ## Installation
@@ -20,9 +19,52 @@ Or install it yourself as:
     $ gem install t_learn
 
 ## Usage
-### hop filed net
+
+### simple feedforward_neural_network
+respect for keras.
 
 ``` ruby
+def test_fun(x)
+    return ( x*0.9 ).round(2)
+end
+
+
+model = TLearn::FeedForwardNeuralNetwork.new
+model.add_layer(2)
+model.add_layer(5)
+model.add_layer(1)
+
+x_train = [[0.1, 1.0],[0.2, 1.0], [0.4, 1.0], [0.6, 1.0]]
+
+y_train = [[ test_fun(x_train[0][0]) ], [ test_fun(x_train[1][0]) ],[ test_fun(x_train[2][0]) ],[ test_fun(x_train[3][0]) ]]
+model.fit(x_train, y_train, 500000)
+
+x_test = [[0.1, 1.0],[0.2, 1.0], [0.4, 1.0], [0.6, 1.0]]
+y_test = [[ test_fun(x_train[0][0]) ], [ test_fun(x_train[1][0]) ],[ test_fun(x_train[2][0]) ],[ test_fun(x_train[3][0]) ]]
+
+model.evaluate(x_test, y_test)
+
+```
+
+### result
+.... 
+
+```
+
+x [0.1,  1.0],  y 0.09 ,  output 0.22505163646378912
+x [0.2,  1.0],  y 0.18 ,  output 0.2817288022885251
+x [0.4,  1.0],  y 0.36 ,  output 0.3699200581887254
+x [0.6,  1.0],  y 0.54 ,  output 0.42524180537036876
+
+```
+
+
+### hop filed net
+sample
+``` ruby
+
+require "t_learn"
+
 data = [1.0, 1.0, -1.0, -1.0, 1.0]  # teacher data
 hop_field_net = TLearn::HopFieldNet.new(0.0, data)
 hop_field_net.memorize

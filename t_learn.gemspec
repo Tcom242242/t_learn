@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "t_learn"
   spec.version       = TLearn::VERSION
   spec.authors       = ["Tcom242242"]
-  spec.email         = ["katsuo242242@gmail.com"]
+  spec.email         = ["okano565656@gmail.com"]
 
   spec.summary       = %q{my machine learning lib}
   spec.description   = %q{my machine learning lib}
