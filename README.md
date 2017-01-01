@@ -24,25 +24,23 @@ Or install it yourself as:
 respect for keras.
 
 ``` ruby
-def test_fun(x)
-    return ( x*0.9 ).round(2)
-end
-
 
 model = TLearn::FeedForwardNeuralNetwork.new
+
 model.add_layer(2)
-model.add_layer(5)
+model.add_layer(3)
 model.add_layer(1)
 
-x_train = [[0.1, 1.0],[0.2, 1.0], [0.4, 1.0], [0.6, 1.0]]
+x_train = [[0.0, 0.0],[0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]
+y_train = [[ 0.0 ], [ 1.0 ],[ 1.0 ],[ 0.0 ]]
+model.fit(x_train, y_train, 50000)
 
-y_train = [[ test_fun(x_train[0][0]) ], [ test_fun(x_train[1][0]) ],[ test_fun(x_train[2][0]) ],[ test_fun(x_train[3][0]) ]]
-model.fit(x_train, y_train, 500000)
+x_test = x_train
+y_test = y_train
 
-x_test = [[0.1, 1.0],[0.2, 1.0], [0.4, 1.0], [0.6, 1.0]]
-y_test = [[ test_fun(x_train[0][0]) ], [ test_fun(x_train[1][0]) ],[ test_fun(x_train[2][0]) ],[ test_fun(x_train[3][0]) ]]
+err_rate = model.evaluate(x_test, y_test)
 
-model.evaluate(x_test, y_test)
+puts "err rate: #{err_rate}%"
 
 ```
 
@@ -51,10 +49,11 @@ model.evaluate(x_test, y_test)
 
 ```
 
-x [0.1,  1.0],  y 0.09 ,  output 0.22505163646378912
-x [0.2,  1.0],  y 0.18 ,  output 0.2817288022885251
-x [0.4,  1.0],  y 0.36 ,  output 0.3699200581887254
-x [0.6,  1.0],  y 0.54 ,  output 0.42524180537036876
+x [0.0,  0.0],  y [0.0] ,  output [0.03286460161620565]
+x [0.0,  1.0],  y [1.0] ,  output [0.9733866321804969]
+x [1.0,  0.0],  y [1.0] ,  output [0.9731963536942299]
+x [1.0,  1.0],  y [0.0] ,  output [0.014481150692655216]
+err rate: 2.5190691608533524%
 
 ```
 

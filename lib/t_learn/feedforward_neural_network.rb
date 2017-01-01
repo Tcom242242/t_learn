@@ -7,19 +7,21 @@ module TLearn
   # ==
   #
   class FeedForwardNeuralNetwork
-    attr_accessor :layer_list, :layer_size, :link_list, :node_id, :learning_rate
-    def initialize(learning_rate=0.3)
+    attr_accessor :layer_list, :layer_size, :link_list, :node_id, :learning_rate, :err_list, :threshold
+    def initialize(learning_rate=0.1, threshold=0.0)
       @layer_size = 0    #layer iterator
       @layer_list = Array.new
       @link_list = Hash.new
       @node_id = 0
       @learning_rate = learning_rate
+      @err_list = Array.new
+      @threshold = threshold
     end
 
     def add_layer(node_num)
       node_list = Array.new()
       node_num.times do |num|
-        node = Node.new(0.2)
+        node = Node.new(0.0,"sig", @threshold)
         node.set_id(@node_id)
         node_list.push(node)
         @node_id += 1
@@ -40,7 +42,7 @@ module TLearn
     def connect_nodes
       @layer_list[@layer_size - 1].each do |from_node|
         @layer_list[@layer_size].each do |to_node|
-          @link_list["#{from_node.id}_#{to_node.id}"] = 0.0
+          @link_list["#{from_node.id}_#{to_node.id}"] = rand(-1.0...1.0)
         end
       end
     end
@@ -54,11 +56,15 @@ module TLearn
     def fit(x_train, y_train, epoch)
       # input teacher_datas
       epoch.times do 
+        epoch_err = 0.0 
         x_train.zip(y_train).each do |x, y|
+          x, y = x_train.zip(y_train).sample
+          # puts "x #{x}, y #{y}"
           propagation(x)
-          # back_propagation 
+          epoch_err += calc_ave_err(y)
           back_propagation(y)
         end
+        @err_list.push(epoch_err)
       end
     end
 
@@ -75,12 +81,22 @@ module TLearn
             @layer_list[layer_num].each do |from_node|
               sum_all_from_node += @link_list["#{from_node.id}_#{to_node.id}"] * from_node.w
             end
-            to_node.update_w(sum_all_from_node)
+            to_node.update_w(sum_all_from_node + 1.0)
           end
         end
       end
     end
 
+    def calc_ave_err(y)
+      sum_err = 0.0
+      @layer_list[@layer_size - 1].each_with_index do |node, i|
+        sum_err += calc_err(node.w,y[i]).abs
+      end
+      ave_err = (sum_err)/y.size
+      return ave_err 
+    end
+
+    
     #
     # === 
     # 
@@ -88,56 +104,62 @@ module TLearn
     #
     def back_propagation(y)
       delta = {}
-      ( @layer_size - 1).downto(1) do |layer_num|
+      ( @layer_size - 1).downto(0) do |layer_num|
         if ( @layer_size - 1) == layer_num   # if output layer
-          @layer_list[layer_num].each_with_index do |to_node, i|
-            @layer_list[layer_num - 1].each do |from_node|
-              delta["#{from_node.id}_#{to_node.id}"] = - calc_err(to_node.w,y[i]) * to_node.w * (1.0 - to_node.w)
-              # puts "delta[#{from_node}_#{to_node}]  #{delta['#{from_node}_#{to_node}']}"
-              delta_weight = -1.0 * @learning_rate * delta["#{from_node.id}_#{to_node.id}"] * to_node.w
-              @link_list["#{from_node.id}_#{to_node.id}"] = @link_list["#{from_node.id}_#{to_node.id}"] + delta_weight ;
-            end
+          @layer_list[layer_num].each_with_index do |output_node, i|
+              delta["#{output_node.id}"] = -1.0 * calc_err(y[i], output_node.w) * output_node.w * (1.0 -output_node.w)
           end
         else 
-          @layer_list[layer_num].each do |to_node|
-            @layer_list[layer_num - 1].each do |from_node|
-              delta["#{from_node.id}_#{to_node.id}"] = calc_delta(delta,layer_num, to_node) * to_node.w * (1.0 - to_node.w)
-              delta_weight = -1.0 * @learning_rate * delta["#{from_node.id}_#{to_node.id}"] * to_node.w
-              @link_list["#{from_node.id}_#{to_node.id}"] = @link_list["#{from_node.id}_#{to_node.id}"] + delta_weight 
+          @layer_list[layer_num].each do |from_node|
+            # リンクの更新
+            @layer_list[layer_num + 1].each do |to_node|
+              update_weight = -1.0 * @learning_rate * delta["#{to_node.id}"] * from_node.w
+              @link_list["#{from_node.id}_#{to_node.id}"] = @link_list["#{from_node.id}_#{to_node.id}"] + update_weight 
             end
+            # その層のdeltaの更新
+            delta["#{from_node.id}"] = calc_delta(delta,layer_num, from_node) * from_node.w * (1.0 - from_node.w)
           end
         end
       end
     end
 
-    def calc_err(w, teacher_data)
-      return (teacher_data - w )
+    def calc_err(teacher_data, w)
+      return (teacher_data -w)
     end
 
     def calc_delta(delta,layer_i, from_node)
       sum = 0.0
       @layer_list[layer_i+1].each do |to_node|
-        sum += delta["#{from_node.id}_#{to_node.id}"] * from_node.w 
+        sum += delta["#{to_node.id}"] * @link_list["#{from_node.id}_#{to_node.id}"]
       end
       return sum
     end
 
     def evaluate(x_test, y_test)
       # compare teacher_datas and output of nn
-      sum = 0.0
+      sum_err = 0.0
       x_test.zip(y_test).each do |x, y|
         propagation(x)
-        @layer_list[@layer_size -1].zip(y).each do |output, y_|
-          puts "x #{x}, y #{y_} , output #{output.w}"
-          sum += 1 if output.w == y_
+        output = []
+        err = 0.0
+        @layer_list[@layer_size -1].zip(y).each do |o, y_f|
+          output.push(o.w)
+          err += (y_f - o.w).abs
         end
+        sum_err += (err/y_test[0].size)
+        puts "x #{x}, y #{y} , output #{output}"
       end 
-      return (sum/y_test.size) * 100.0
+      return (sum_err/y_test.size) * 100.0
+      # return 0.0
+    end
+
+    def get_output_layer
+      return @layer_list[@layer_size-1]
     end
 
     class Node
       attr_accessor :w,:active_function, :threshold, :id
-      def initialize(w = 0.0, active_function = "sig", threshold = 0.5)
+      def initialize(w = 0.0, active_function = "sig", threshold = 0.0)
         @w = w 
         @threshold = threshold 
         @active_function = active_function
@@ -158,8 +180,7 @@ module TLearn
       end
 
       def sigmoid_fun(x, a=1)
-        result= (1.0/(1.0+Math.exp(-1.0 * a * x))) ;
-        return result
+        return (1.0/(1.0+Math.exp(-1.0 * a * x)))
       end
     end
   end
