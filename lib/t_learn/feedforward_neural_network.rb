@@ -2,18 +2,19 @@
 # -*- encoding: utf-8 -*-
 
 module TLearn
-
   #
   # ==
   #
   class FeedForwardNeuralNetwork
     attr_accessor :layer_list, :layer_size, :link_list, :node_id, :learning_rate, :err_list, :threshold
-    def initialize(learning_rate=0.1, threshold=0.0)
+    def initialize(learning_rate=0.1, threshold=0.0, momentum_rate=0.01)
       @layer_size = 0    #layer iterator
       @layer_list = Array.new
       @link_list = Hash.new
       @node_id = 0
       @learning_rate = learning_rate
+      @momentum_weight_list = Hash.new
+      @momentum_rate = momentum_rate
       @err_list = Array.new
       @threshold = threshold
     end
@@ -43,6 +44,7 @@ module TLearn
       @layer_list[@layer_size - 1].each do |from_node|
         @layer_list[@layer_size].each do |to_node|
           @link_list["#{from_node.id}_#{to_node.id}"] = rand(-1.0...1.0)
+          @momentum_weight_list["#{from_node.id}_#{to_node.id}"] = 0.0
         end
       end
     end
@@ -69,6 +71,7 @@ module TLearn
     end
 
     def propagation(x)
+      raise "input size is different from  node num of input layer "  if @layer_list[0].size != x.size
       # input data 
       @layer_list[0].each_with_index do |node, i|
         node.input (x[i])
@@ -85,6 +88,8 @@ module TLearn
           end
         end
       end
+
+      return get_output_layer 
     end
 
     def calc_ave_err(y)
@@ -96,25 +101,31 @@ module TLearn
       return ave_err 
     end
 
-    
+
     #
     # === 
     # 
     # @param y Array teacher_data
     #
     def back_propagation(y)
+
+      raise "output size different from node num of output layer"  if get_output_layer.size != y.size
+      # raise "o"  if get_output_layer.size != y.size
       delta = {}
       ( @layer_size - 1).downto(0) do |layer_num|
         if ( @layer_size - 1) == layer_num   # if output layer
           @layer_list[layer_num].each_with_index do |output_node, i|
-              delta["#{output_node.id}"] = -1.0 * calc_err(y[i], output_node.w) * output_node.w * (1.0 -output_node.w)
+            delta["#{output_node.id}"] = -1.0 * calc_err(y[i], output_node.w) * output_node.w * (1.0 -output_node.w)
           end
         else 
           @layer_list[layer_num].each do |from_node|
             # リンクの更新
             @layer_list[layer_num + 1].each do |to_node|
+              # モメンタムによる更新
+              momentum_weight = @momentum_rate * @momentum_weight_list["#{from_node.id}_#{to_node.id}"]
               update_weight = -1.0 * @learning_rate * delta["#{to_node.id}"] * from_node.w
-              @link_list["#{from_node.id}_#{to_node.id}"] = @link_list["#{from_node.id}_#{to_node.id}"] + update_weight 
+              @link_list["#{from_node.id}_#{to_node.id}"] = @link_list["#{from_node.id}_#{to_node.id}"] + update_weight + momentum_weight
+              @momentum_weight_list["#{from_node.id}_#{to_node.id}"] = update_weight # for momentum
             end
             # その層のdeltaの更新
             delta["#{from_node.id}"] = calc_delta(delta,layer_num, from_node) * from_node.w * (1.0 - from_node.w)
@@ -147,14 +158,18 @@ module TLearn
           err += (y_f - o.w).abs
         end
         sum_err += (err/y_test[0].size)
-        puts "x #{x}, y #{y} , output #{output}"
+        # puts "x #{x}, y #{y} , output #{output}"
       end 
       return (sum_err/y_test.size) * 100.0
       # return 0.0
     end
 
     def get_output_layer
-      return @layer_list[@layer_size-1]
+      output = []
+      @layer_list[@layer_size-1].each do |node|
+        output.push(node.w)
+      end
+      return output
     end
 
     class Node
