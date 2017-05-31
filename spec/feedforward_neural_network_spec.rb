@@ -7,7 +7,7 @@ module TLearn
   
   describe FeedForwardNeuralNetwork do
     before do
-      @model = FeedForwardNeuralNetwork.new(0.3, 0.1)
+      @model = TLearn::FeedForwardNeuralNetwork.new(0.3, 0.1)
     end
 
     it "propagation test" do
@@ -19,7 +19,7 @@ module TLearn
     end
 
     it "simple neural net" do
-      model = FeedForwardNeuralNetwork.new(0.1, 0.0)
+      model = TLearn::FeedForwardNeuralNetwork.new(0.1, 0.0)
       model.add_layer(2)
       model.add_layer(3)
       model.add_layer(2)
@@ -41,7 +41,7 @@ module TLearn
     end
 
     it "raise output input exception" do
-      @model = FeedForwardNeuralNetwork.new(0.3, 0.1)
+      @model = TLearn::FeedForwardNeuralNetwork.new(0.3, 0.1)
       @model.add_layer(2)
       @model.add_layer(3)
       @model.add_layer(1)
