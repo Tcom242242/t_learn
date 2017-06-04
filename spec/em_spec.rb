@@ -27,7 +27,7 @@ module TLearn
       # r = gauusian([rand()*100], [1.0], [[ 2.0 ]])
       # r2 = normal_rand(5.0, 5.0)
       # r3 = normal_rand(20.0, 1.0)
-    r2 = self.normal_rand(0.5, 10.0)
+    r2 = self.normal_rand(100.0, 10.0)
       # r2 = gauusian([rand()*100], [20.0], [[5.0]])
       # return [0.2*r + 0.8*r2]
       rand = rand()
@@ -45,16 +45,17 @@ module TLearn
       #   return [r3]
       # end
     end
+
   #
-    # ===ボックス―ミューラー法をよる正規分布乱数発生
-    # @param mu flout 平均
-    # @param sigma flout 標準偏差
-    # @return ボックスミューラー法に従う正規分布に従う乱数を生成
-    #
+  # ===ボックス―ミューラー法をよる正規分布乱数発生
+  # @param mu flout 平均
+  # @param sigma flout 標準偏差
+  # @return ボックスミューラー法に従う正規分布に従う乱数を生成
+  #
   def self.normal_rand(mu = 0,sigma = 1.0)
       a, b = rand(), rand() ;
       return (Math.sqrt(-2*Math.log(rand()))*Math.sin(2*Math::PI*rand()) * sigma) + mu
-    end
+  end
 
 end
 

@@ -14,27 +14,36 @@ module TLearn
       @k_num = k_num # ガウス分布の数
       @data_list = data_list
       @dim = @data_list[0].size
-      @data_list = scale(@data_list)
+      # @data_list = scale(@data_list)
+      data_ave_std =calc_first_ave_std(@data_list)
       @real_data_list = Marshal.load(Marshal.dump(@data_list))
-      @mu_list = Array.new(@k_num).map{Array.new(@dim, rand())}
-      @conv_list = Array.new(@k_num).map{ini_conv()}
+      @mu_list = Array.new(@k_num).map{ini_ave(data_ave_std[:ave_list])}
+      @conv_list = Array.new(@k_num).map{ini_conv(data_ave_std[:std_list])}
       @pi_list = @k_num.times.map{rand()}
       @gamma = Array.new(@data_list.size).map{Array.new(@k_num, 0)}
     end
 
-    def ini_conv
+    def ini_ave(ave_list)
+      array = []
+      @dim.times {|i|
+        array.push(ave_list[i]*rand())
+      }
+      return array
+    end
+
+    def ini_conv(std_list)
       conv = []
       @dim.times {|i|
-        conv.push(make_array(i))
+        conv.push(make_array(i, std_list[i]))
       }
       return conv
     end
 
-    def make_array(i)
+    def make_array(i, std)
       array = []
       @dim.times {|x|
         if i == x 
-          array.push(1.0)
+          array.push(std**2)
         else
           array.push(0.0)
         end
@@ -188,6 +197,27 @@ module TLearn
       return (f1 * f2)
     end
 
+    def calc_first_ave_std(x)
+      sum_each_vec = []
+      ave_list = []
+      std_list = []
+      x.each{|vec| 
+        vec.each_with_index{|data, i|
+          sum_each_vec[i] = (sum_each_vec[i] == nil) ? data : sum_each_vec[i]+data
+        }
+      }
+      x[0].size.times{|i| ave_list.push(sum_each_vec[i]/x.size)}
+
+      sum_each_vec = []
+      x.each{|vec| 
+        vec.each_with_index{|data, i|
+          sum_each_vec[i] = (sum_each_vec[i] == nil) ? (ave_list[i]-data)**2 : (sum_each_vec[i]+(ave_list[i]-data)**2)
+        }
+      }
+      x[0].size.times{|i| std_list.push(Math.sqrt(sum_each_vec[i]/x.size))}
+
+      return {:ave_list => ave_list, :std_list => std_list}
+    end
 
     def scale(x)
       if x[0].instance_of?(Array)  # check whether x's factor is 1dim or over 2dim
