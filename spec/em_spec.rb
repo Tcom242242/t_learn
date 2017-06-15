@@ -12,12 +12,26 @@ module TLearn
 
     it "em test" do
       1.times {
-        data_list = 1000.times.map{|i| TLearn.gaussian_mix_1dim(i)}
+        data_list = 1000.times.map{|i| TLearn.gaussian_mix_2dim()}
         a = @em.fit(data_list, 2)
         expect("100.0").to eq("100.0")
       }
     end
   end
+  
+  def TLearn.gaussian_mix_2dim()
+    r1_x = self.normal_rand()
+    r1_y = self.normal_rand()
+    r2_x = self.normal_rand(10.0, 50.0)
+    r2_y = self.normal_rand(10.0, 50.0)
+
+      if (rand() < 0.15)
+        return [r1_x, r1_y]
+      else
+        return [r2_x, r2_y]
+      end
+    end
+
 
     #
     # === 混合正規分布を生成する

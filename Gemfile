@@ -5,5 +5,4 @@ gemspec
 
 group :development, :test do
   gem 'pry-rails'
-  gem 'matrix'
 end

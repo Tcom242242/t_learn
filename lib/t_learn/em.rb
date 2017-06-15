@@ -4,6 +4,7 @@
 require "yaml"
 require "json"
 require "pry"
+require "matrix"
 
 module TLearn
 
@@ -11,11 +12,11 @@ module TLearn
     attr_accessor :mu_list, :conv_list, :pi_list, :log_likelihood, :k_num,:data_list, :real_data_list
 
     def init(data_list, k_num)
-      @k_num = k_num # ガウス分布の数
+      @k_num = k_num 
       @data_list = data_list
       @dim = @data_list[0].size
       # @data_list = scale(@data_list)
-      data_ave_std =calc_first_ave_std(@data_list)
+      data_ave_std = calc_first_ave_std(@data_list)
       @real_data_list = Marshal.load(Marshal.dump(@data_list))
       @mu_list = Array.new(@k_num).map{ini_ave(data_ave_std[:ave_list])}
       @conv_list = Array.new(@k_num).map{ini_conv(data_ave_std[:std_list])}
@@ -51,8 +52,9 @@ module TLearn
       return array
     end
 
-    def create_log(cycle)
+    def create_log(cycle, likelihood)
       log = {:cycle => cycle, 
+             :likelihood => likelihood,
              :mu => @mu_list.clone, 
              :conv => @conv_list.clone, 
              :pi_list => @pi_list.clone}
@@ -72,7 +74,7 @@ module TLearn
         diff = (likelihood - last_likelihood).abs
         last_likelihood = likelihood
         puts "likelihood: #{likelihood}"
-        result.push(create_log(cycle))
+        result.push(create_log(cycle, likelihood))
         cycle += 1
         break if diff < 0.000001
       end
@@ -120,7 +122,6 @@ module TLearn
       return mu
     end
 
-    
     def calc_conv(k, nk)
       conv = Array.new(@dim).map{Array.new(@dim, 0)}
       @dim.times{|i|
@@ -130,7 +131,11 @@ module TLearn
           } 
         }
       }
-      conv = conv.map{|arr| arr.map{|v| v/nk}}
+      conv = conv.map{|arr| 
+        arr.map{|v| 
+          (v/nk) != 0.0 ? (v/nk) : 0.1
+        }
+      }
       return conv
     end
 
@@ -146,23 +151,6 @@ module TLearn
       return log_likelihood
     end 
 
-
-    #
-    # === 混合正規分布を生成する
-    #
-    def gaussian_mix()
-      r1_x = normal_rand()
-      r1_y = normal_rand()
-      r2_x = normal_rand(10.0, 50.0)
-      r2_y = normal_rand(10.0, 50.0)
-
-      if (rand() < 0.15)
-        return [r1_x, r1_y]
-      else
-        return [r2_x, r2_y]
-      end
-    end
-
     #
     # === gauusian distribution 
     #
@@ -175,24 +163,20 @@ module TLearn
         f2 = Math.exp(-(((x-mu)**2)/((2.0*sigma))))
         return f1 * f2
       else
-        return gauusian2dim(x, mu, sigma)
+        return gauusian_over_2dim(x, mu, sigma)
       end
     end
 
 
     #
-    # === gauusian distribution .2 dim version
+    # === gauusian distribution over 2 dim version
     #
-    def gauusian2dim(x, mu, conv)
+    def gauusian_over_2dim(x, mu, conv)
       x = Matrix[x]
       mu = Matrix[mu]
       conv = Matrix[*conv]
-      begin
-        f1 = 1.0/(2.0 * Math::PI * ( conv.det**(0.5) ))
-        f2 = Math.exp((-1.0/2.0)*((x-mu) * conv.inverse * (x-mu).transpose)[0, 0])
-      rescue
-        binding.pry ;
-      end
+      f1 = 1.0/(((2.0 * Math::PI)**(@dim/2.0)) * ( conv.det**(0.5) ))
+      f2 = Math.exp((-1.0/2.0)*((x-mu) * conv.inverse * (x-mu).transpose)[0, 0])
 
       return (f1 * f2)
     end
@@ -203,7 +187,7 @@ module TLearn
       std_list = []
       x.each{|vec| 
         vec.each_with_index{|data, i|
-          sum_each_vec[i] = (sum_each_vec[i] == nil) ? data : sum_each_vec[i]+data
+          sum_each_vec[i] = (sum_each_vec[i] == nil) ? data : sum_each_vec[i] + data
         }
       }
       x[0].size.times{|i| ave_list.push(sum_each_vec[i]/x.size)}
@@ -214,53 +198,47 @@ module TLearn
           sum_each_vec[i] = (sum_each_vec[i] == nil) ? (ave_list[i]-data)**2 : (sum_each_vec[i]+(ave_list[i]-data)**2)
         }
       }
-      x[0].size.times{|i| std_list.push(Math.sqrt(sum_each_vec[i]/x.size))}
+      x[0].size.times{|i| 
+        std = Math.sqrt(sum_each_vec[i]/x.size)
+        std = 0.1 if std == 0.0 
+        std_list.push(std)
+      }
 
       return {:ave_list => ave_list, :std_list => std_list}
     end
 
+
     def scale(x)
-      if x[0].instance_of?(Array)  # check whether x's factor is 1dim or over 2dim
-        sum_each_vec = []
-        ave_list = []
-        std_list = []
-        x.each{|vec| 
-          vec.each_with_index{|data, i|
-            sum_each_vec[i] = (sum_each_vec[i] == nil) ? data : sum_each_vec[i]+data
-          }
+      sum_each_vec = []
+      ave_list = []
+      std_list = []
+      x.each{|vec| 
+        vec.each_with_index{|data, i|
+          sum_each_vec[i] = (sum_each_vec[i] == nil) ? data : sum_each_vec[i]+data
         }
-        x[0].size.times{|i|
-          ave_list.push(sum_each_vec[i]/x.size)
-        }
+      }
+      x[0].size.times{|i|
+        ave_list.push(sum_each_vec[i]/x.size)
+      }
 
-        sum_each_vec = []
-        x.each{|vec| 
-          vec.each_with_index{|data, i|
-            sum_each_vec[i] = (sum_each_vec[i] == nil) ? (ave_list[i]-data)**2 : (sum_each_vec[i]+(ave_list[i]-data)**2)
-          }
+      sum_each_vec = []
+      x.each{|vec| 
+        vec.each_with_index{|data, i|
+          sum_each_vec[i] = (sum_each_vec[i] == nil) ? (ave_list[i]-data)**2 : (sum_each_vec[i]+(ave_list[i]-data)**2)
         }
-        x[0].size.times{|i|
-          std_list.push(Math.sqrt(sum_each_vec[i]/x.size))
-        }
+      }
+      x[0].size.times{|i|
+        std_list.push(Math.sqrt(sum_each_vec[i]/x.size))
+      }
 
-        scaled_x = []
-        x.each_with_index{|vec, i| 
-          scaled_x[i] ||= []
-          vec.each_with_index{|data, j|
-            scaled_x[i][j] ||= (data-ave_list[j])/std_list[j]
-          }
+      scaled_x = []
+      x.each_with_index{|vec, i| 
+        scaled_x[i] ||= []
+        vec.each_with_index{|data, j|
+          scaled_x[i][j] ||= (data-ave_list[j])/std_list[j]
         }
-        return scaled_x
-      else  # if 1dim
-        mu = x.each.inject(0.0){|sum, data| sum+=data}/x.size
-        var = (x.each.inject(0.0){|sum, data| sum+=(data-mu)**2}/x.size) 
-        std = Math.sqrt(var)
-        scaled_x = []
-        x.each{|sum,data| 
-          scaled_x.push((mu-data)/std)
-        } 
-        return scaled_x
-      end
+      }
+      return scaled_x
     end
   end
 end
