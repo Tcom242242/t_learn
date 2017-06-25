@@ -5,20 +5,22 @@ require "yaml"
 
 module TLearn
   class K_Means
-    attr_accessor :datas, :k, :c_list
-    def initialize(datas: [[2, 3],[2, 8],[2, 3],[3, 5],[6, 3],[5, 3]], k: 2, dim: 2)
-      @datas = datas
-      sliced_datas = @datas.each_slice(k).to_a
+    attr_accessor :data_list, :k, :c_list
+
+    def init(data_list, k=2)
+      @data_list = data_list
+      sliced_data_list = @data_list.each_slice(k).to_a
+      @dim = data_list[0].size
       @k = k 
-      @cluster_list = @k.times.map {|n| Cluster.new(n, nil,sliced_datas[n] , dim)}
-      @dim = dim 
+      @cluster_list = @k.times.map {|n| Cluster.new(n, nil,sliced_data_list[n] , @dim)}
     end
 
 
-    def fit()
+    def fit(data_list, k)
+      init(data_list, k)
       loop {
         @cluster_list.each{|c| c.reset_v_list()}
-        @datas.each {|d|
+        @data_list.each {|d|
           min_dist = 100000
           min_cluster_id = -1
           @cluster_list.each {|c|
@@ -37,9 +39,7 @@ module TLearn
 
       formated_cluster_list = format_for_log()
 
-      open("result.yaml", 'w') do |io|
-        YAML.dump(formated_cluster_list, io)
-      end
+      return formated_cluster_list
     end
 
     def format_for_log()
