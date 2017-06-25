@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 # -*- encoding: utf-8 -*-
 
-require "yaml"
 
 module TLearn
   class K_Means
@@ -18,6 +17,7 @@ module TLearn
 
     def fit(data_list, k)
       init(data_list, k)
+      history = []
       loop {
         @cluster_list.each{|c| c.reset_v_list()}
         @data_list.each {|d|
@@ -33,13 +33,12 @@ module TLearn
           @cluster_list[min_cluster_id].add_v(d)
         }
 
+        history.push(format_for_log())
         @cluster_list.each{|c| c.calc_center()}
         break if !change_clusters_center?
       }
 
-      formated_cluster_list = format_for_log()
-
-      return formated_cluster_list
+      return {:result => format_for_log(), :history => history}
     end
 
     def format_for_log()
