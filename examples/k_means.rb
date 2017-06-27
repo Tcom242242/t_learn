@@ -1,5 +1,4 @@
 require "t_learn"
-require "pry"
 
 k_means = TLearn::K_Means.new()
 data_list = JSON.load(open("./sample_1dim.json"))
