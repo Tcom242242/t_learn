@@ -2,6 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 module TLearn
+
   class HopFieldNet
     attr_accessor :net,:train_datas,:threshold ,:nodes,:dim,:is_train
 

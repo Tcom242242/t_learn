@@ -27,7 +27,7 @@ respect for keras.
 
 require "t_learn"
 
-model = TLearn::FeedForwardNeuralNetwork.new(learning_rate=0.1)
+model = TLearn::FNN.new(learning_rate=0.1)
 
 model.add_layer(node_num=2)
 model.add_layer(node_num=3)
@@ -44,23 +44,6 @@ err_rate = model.evaluate(x_test, y_test)
 
 puts "err rate: #{err_rate}%"
 
-# p x_test[0]
-# model.propagation(x_text[0])
-# puts model.get_output_layer[1].w
-
-```
-
-### result
-.... 
-
-```
-
-x [0.0,  0.0],  y [0.0] ,  output [0.03286460161620565]
-x [0.0,  1.0],  y [1.0] ,  output [0.9733866321804969]
-x [1.0,  0.0],  y [1.0] ,  output [0.9731963536942299]
-x [1.0,  1.0],  y [0.0] ,  output [0.014481150692655216]
-err rate: 2.5190691608533524%
-
 ```
 
 
@@ -74,10 +57,8 @@ data = [1.0, 1.0, -1.0, -1.0, 1.0]  # teacher data
 hop_field_net = TLearn::HopFieldNet.new(0.0, data)
 hop_field_net.memorize
 noisedData = TLearn.add_noise_data(data, 0.0) # make test data
-puts "======[before]======"
 puts "#{TLearn.evaluate(data, noisedData)}%"
 hop_field_net.remember(noisedData)
-puts "======[after]======"
 puts "#{ TLearn.evaluate(data,hop_field_net.nodes) }%" 
 
 ```

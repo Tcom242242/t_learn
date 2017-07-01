@@ -5,7 +5,7 @@ module TLearn
   #
   # ==
   #
-  class FeedForwardNeuralNetwork
+  class FNN
     attr_accessor :layer_list, :layer_size, :link_list, :node_id, :learning_rate, :err_list, :threshold
     def initialize(learning_rate=0.1, threshold=0.0, momentum_rate=0.01)
       @layer_size = 0    #layer iterator
