@@ -19,49 +19,15 @@ Or install it yourself as:
     $ gem install t_learn
 
 ## Usage
-
-### simple feedforward_neural_network
-respect for keras.
-
-``` ruby
-
-require "t_learn"
-
-model = TLearn::FNN.new(learning_rate=0.1)
-
-model.add_layer(node_num=2)
-model.add_layer(node_num=3)
-model.add_layer(node_num=1)
-
-x_train = [[0.0, 0.0],[0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]
-y_train = [[ 0.0 ], [ 1.0 ],[ 1.0 ],[ 0.0 ]]
-model.fit(x_train, y_train, epoch=50000)
-
-x_test = x_train
-y_test = y_train
-
-err_rate = model.evaluate(x_test, y_test)
-
-puts "err rate: #{err_rate}%"
-
-```
-
-
+Please refer to example programs.
+### feed forward neural network
+example/fnn.rb
 ### hop filed net
-sample
-``` ruby
-
-require "t_learn"
-
-data = [1.0, 1.0, -1.0, -1.0, 1.0]  # teacher data
-hop_field_net = TLearn::HopFieldNet.new(0.0, data)
-hop_field_net.memorize
-noisedData = TLearn.add_noise_data(data, 0.0) # make test data
-puts "#{TLearn.evaluate(data, noisedData)}%"
-hop_field_net.remember(noisedData)
-puts "#{ TLearn.evaluate(data,hop_field_net.nodes) }%" 
-
-```
+example/hop_field_net.rb
+### k-means
+example/k_means.rb
+### em-gaussian
+example/em-gausian.rb
 
 ## Development
 
