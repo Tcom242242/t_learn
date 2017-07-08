@@ -5,7 +5,7 @@ module TLearn
     return ( x*0.9 ).round(2)
   end
   
-  describe FeedForwardNeuralNetwork do
+  describe FNN do
     before do
       @model = TLearn::FNN.new(0.3, 0.1)
     end
