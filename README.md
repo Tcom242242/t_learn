@@ -1,6 +1,5 @@
 # TLearn
-This is my hobby machine learning library.
-I will add machine learning items.
+[![Build Status](https://travis-ci.org/Tcom242242/t_learn.svg?branch=master)](https://travis-ci.org/Tcom242242/t_learn)
 
 ## Installation
 
