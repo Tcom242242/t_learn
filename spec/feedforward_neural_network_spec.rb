@@ -41,7 +41,7 @@ module TLearn
     end
 
     it "raise output input exception" do
-      @model = TLearn::FeedForwardNeuralNetwork.new(0.3, 0.1)
+      @model = TLearn::FNN.new(0.3, 0.1)
       @model.add_layer(2)
       @model.add_layer(3)
       @model.add_layer(1)
