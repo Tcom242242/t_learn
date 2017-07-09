@@ -23,13 +23,18 @@ Or install it yourself as:
 Please refer to example programs.
 ### feed forward neural network
 example/fnn.rb
+
+http://www.tcom242242.net/entry/2017/01/08/103922
 ### hop filed net
 example/hop_field_net.rb
 ### k-means
 example/k_means.rb
+
+http://www.tcom242242.net/entry/2017/06/29/050208
 ### em-gaussian
 example/em-gausian.rb
 
+http://www.tcom242242.net/entry/2017/06/24/212537
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
