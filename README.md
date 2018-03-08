@@ -1,6 +1,5 @@
 # TLearn
 This is my hobby machine learning library.
-I will add machine learning items.
 
 ## Installation
 
