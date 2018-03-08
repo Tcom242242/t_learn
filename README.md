@@ -1,5 +1,8 @@
 # TLearn
 This is my hobby machine learning library.
+[![Build Status](https://travis-ci.org/Tcom242242/t_learn.svg?branch=master)](https://travis-ci.org/Tcom242242/t_learn)
+[![Gem Version](https://badge.fury.io/rb/t_learn.svg)](https://badge.fury.io/rb/t_learn)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 ## Installation
 
@@ -21,13 +24,18 @@ Or install it yourself as:
 Please refer to example programs.
 ### feed forward neural network
 example/fnn.rb
+
+http://www.tcom242242.net/entry/2017/01/08/103922
 ### hop filed net
 example/hop_field_net.rb
 ### k-means
 example/k_means.rb
+
+http://www.tcom242242.net/entry/2017/06/29/050208
 ### em-gaussian
 example/em-gausian.rb
 
+http://www.tcom242242.net/entry/2017/06/24/212537
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

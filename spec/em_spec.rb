@@ -11,7 +11,7 @@ module TLearn
     end
 
     it "em test" do
-      1000.times {
+      10.times {
         # data_list = 1000.times.map{|i| TLearn.gaussian_mix_2dim()}
         data_list = 100.times.map{|i| TLearn.gaussian_mix_1dim()}
         a = @em.fit(data_list, 2)
