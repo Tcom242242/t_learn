@@ -1,5 +1,5 @@
 # TLearn
-This is my hobby machine learning library.
+This is my hobby machine learning library
 [![Build Status](https://travis-ci.org/Tcom242242/t_learn.svg?branch=master)](https://travis-ci.org/Tcom242242/t_learn)
 [![Gem Version](https://badge.fury.io/rb/t_learn.svg)](https://badge.fury.io/rb/t_learn)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
